@@ -6,7 +6,11 @@ import 'package:savemycopy/src/api/backend.dart';
 
 class FirebaseCalls {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FacebookLogin _facebookLogin = FacebookLogin();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  FacebookProfile facebookProfile;
+
+  var authenticated = false;
 
   final Client client = Client();
 
@@ -25,6 +29,8 @@ class FirebaseCalls {
     assert(!user.isAnonymous);
     assert(await user.getIdToken() != null);
 
+    user.uid == null ? authenticated = false : authenticated = true;
+
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
 
@@ -34,14 +40,10 @@ class FirebaseCalls {
   }
 
   // Profile image: Small size photo https://graph.facebook.com/{facebookId}/picture?type=small
-  Future<FacebookProfile> handleFacebookSignIn() async {
-    print('Entre a facebook login');
-    FacebookProfile facebookProfile;
-    final FacebookLogin _facebookLogin = FacebookLogin();
+//  Future<FacebookProfile> handleFacebookSignIn() async {
+  Future<String> handleFacebookSignIn() async {
     var result = await _facebookLogin
-        .loginWithPublishPermissions(['email', 'public_profile']);
-
-    //    final FacebookAuthProvider facebookUser = FacebookAuthProvider();
+        .logInWithReadPermissions(['email', 'public_profile']);
 
     switch (result.status) {
       case FacebookLoginStatus.loggedIn:
@@ -50,9 +52,9 @@ class FirebaseCalls {
         final graphResponse = await client.get(
             'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email&access_token=$token');
         facebookProfile = facebookProfileFromJson(graphResponse.body);
+        authenticated = true;
         break;
       case FacebookLoginStatus.cancelledByUser:
-//        _showCancelledMessage();
         print('Canceled By User');
         break;
       case FacebookLoginStatus.error:
@@ -60,10 +62,14 @@ class FirebaseCalls {
         break;
     }
 
+    _facebookLogin.currentAccessToken == null ? authenticated = false : authenticated = true;
     print(facebookProfile.name);
 
-    return facebookProfile;
+//    return facebookProfile;
+    return 'Succeeded: ${facebookProfile.name}';
   }
 
-  handleGoogleLogOut() => _googleSignIn.signOut;
+  handleLogOut() => _googleSignIn.currentUser != null
+      ? _googleSignIn.signOut
+      : _facebookLogin.logOut;
 }
