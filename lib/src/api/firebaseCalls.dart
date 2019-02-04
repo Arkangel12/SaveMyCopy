@@ -46,12 +46,9 @@ class FirebaseCalls {
     userProfile = userProfileFromJson(userString);
 
     return userProfile;
-//    return 'Succeeded: ${user.displayName}';
   }
 
-  // Profile image: Small size photo
   Future<UserProfile> handleFacebookSignIn() async {
-//  Future<String> handleFacebookSignIn() async {
     var result = await _facebookLogin
         .logInWithReadPermissions(['email', 'public_profile']);
 
@@ -77,10 +74,10 @@ class FirebaseCalls {
     print(userProfile.name);
 
     return userProfile;
-//    return 'Succeeded: ${facebookProfile.name}';
   }
 
   handleLogOut() => _googleSignIn.currentUser != null
       ? _googleSignIn.signOut
       : _facebookLogin.logOut;
+
 }
