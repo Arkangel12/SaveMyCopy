@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:savemycopy/src/api/backend.dart';
+import 'package:savemycopy/src/screens/webViewScreen.dart';
 
 class ClipboardScreen extends StatelessWidget {
   final UserProfile userProfile;
 
-  const ClipboardScreen({Key key, this.userProfile}) : super(key: key);
+  ClipboardScreen({Key key, this.userProfile}) : super(key: key);
 
   static Route<dynamic> route(userProfile) {
     return MaterialPageRoute(
@@ -15,9 +16,12 @@ class ClipboardScreen extends StatelessWidget {
     );
   }
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(userProfile.name),
         actions: <Widget>[
@@ -43,7 +47,7 @@ class ClipboardScreen extends StatelessWidget {
                   image: userProfile.photoUrl == null
                       ? NetworkImage(
                           'https://graph.facebook.com/${userProfile.id}/picture?type=normal')
-                        : NetworkImage(userProfile.photoUrl),
+                      : NetworkImage(userProfile.photoUrl),
                 ),
               ),
             ),
@@ -66,16 +70,55 @@ class ClipboardScreen extends StatelessWidget {
               return Text('Loading...');
             default:
               return ListView(
-                children:
-                    snapshot.data.documents.map((DocumentSnapshot document) {
-                  return ListTile(
-                    title: Text(document['category']),
-                    subtitle: Text(document['url']),
-                  );
-                }).toList(),
+                children: snapshot.data.documents.map(
+                  (DocumentSnapshot document) {
+                    return ListTile(
+                      onTap: () => Navigator.of(context).push(
+                            WebViewScreen.route(
+                              document['url'],
+                            ),
+                          ),
+                      title: Text(document['category']),
+                      subtitle: Text(document['url']),
+                    );
+                  },
+                ).toList(),
               );
           }
         },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          _scaffoldKey.currentState
+              .showBottomSheet<Null>((BuildContext context) {
+            return Container(
+              margin: EdgeInsets.symmetric(vertical: 30),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.orange)
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      'Persistent header for bottom bar!',
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  Text(
+                    'Then here there will likely be some other content '
+                        'which will be displayed within the bottom bar',
+                    textAlign: TextAlign.left,
+                  ),
+                ],
+              ),
+            );
+          });
+        },
+        icon: Icon(Icons.bookmark),
+        label: Text('Add Bookmark'),
       ),
     );
   }
