@@ -25,6 +25,7 @@ dependencies:
   firebase_auth: ^0.8.0+1
   flutter_facebook_login: ^1.2.0
   font_awesome_flutter: any
+  rxdart: ^0.20.0
 
 dev_dependencies:
   flutter_test:

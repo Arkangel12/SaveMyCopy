@@ -8,13 +8,13 @@ class FirebaseCalls {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FacebookLogin _facebookLogin = FacebookLogin();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  FacebookProfile facebookProfile;
+  UserProfile userProfile;
 
   var authenticated = false;
 
   final Client client = Client();
 
-  Future<String> handleGoogleSignIn() async {
+  Future<UserProfile> handleGoogleSignIn() async {
     final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
     final GoogleSignInAuthentication googleAuth =
         await googleUser.authentication;
@@ -34,14 +34,24 @@ class FirebaseCalls {
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
 
-    print(user.displayName);
+    var userString ='''{
+      "name": "${user.displayName}",
+      "first_name": "${user.displayName}",
+      "last_name": "${user.displayName}",
+      "email": "${user.email}",
+      "photoUrl": "${user.photoUrl}",
+      "id": "${user.uid}"
+    }''';
 
-    return 'Succeeded: ${user.displayName}';
+    userProfile = userProfileFromJson(userString);
+
+    return userProfile;
+//    return 'Succeeded: ${user.displayName}';
   }
 
-  // Profile image: Small size photo https://graph.facebook.com/{facebookId}/picture?type=small
-//  Future<FacebookProfile> handleFacebookSignIn() async {
-  Future<String> handleFacebookSignIn() async {
+  // Profile image: Small size photo
+  Future<UserProfile> handleFacebookSignIn() async {
+//  Future<String> handleFacebookSignIn() async {
     var result = await _facebookLogin
         .logInWithReadPermissions(['email', 'public_profile']);
 
@@ -51,7 +61,8 @@ class FirebaseCalls {
         final token = result.accessToken.token;
         final graphResponse = await client.get(
             'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email&access_token=$token');
-        facebookProfile = facebookProfileFromJson(graphResponse.body);
+        userProfile = userProfileFromJson(graphResponse.body);
+        print(graphResponse.body);
         authenticated = true;
         break;
       case FacebookLoginStatus.cancelledByUser:
@@ -63,10 +74,10 @@ class FirebaseCalls {
     }
 
     _facebookLogin.currentAccessToken == null ? authenticated = false : authenticated = true;
-    print(facebookProfile.name);
+    print(userProfile.name);
 
-//    return facebookProfile;
-    return 'Succeeded: ${facebookProfile.name}';
+    return userProfile;
+//    return 'Succeeded: ${facebookProfile.name}';
   }
 
   handleLogOut() => _googleSignIn.currentUser != null

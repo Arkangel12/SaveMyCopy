@@ -1,39 +1,42 @@
 // To parse this JSON data, do
 //
-//     final facebookProfile = facebookProfileFromJson(jsonString);
+//     final userProfile = userProfileFromJson(jsonString);
 
 import 'dart:convert';
 
-FacebookProfile facebookProfileFromJson(String str) {
+UserProfile userProfileFromJson(String str) {
   final jsonData = json.decode(str);
-  return FacebookProfile.fromJson(jsonData);
+  return UserProfile.fromJson(jsonData);
 }
 
-String facebookProfileToJson(FacebookProfile data) {
+String userProfileToJson(UserProfile data) {
   final dyn = data.toJson();
   return json.encode(dyn);
 }
 
-class FacebookProfile {
+class UserProfile {
   String name;
   String firstName;
   String lastName;
   String email;
+  String photoUrl;
   String id;
 
-  FacebookProfile({
+  UserProfile({
     this.name,
     this.firstName,
     this.lastName,
     this.email,
+    this.photoUrl,
     this.id,
   });
 
-  factory FacebookProfile.fromJson(Map<String, dynamic> json) => new FacebookProfile(
+  factory UserProfile.fromJson(Map<String, dynamic> json) => new UserProfile(
     name: json["name"],
     firstName: json["first_name"],
     lastName: json["last_name"],
     email: json["email"],
+    photoUrl: json["photoUrl"],
     id: json["id"],
   );
 
@@ -42,6 +45,7 @@ class FacebookProfile {
     "first_name": firstName,
     "last_name": lastName,
     "email": email,
+    "photoUrl": photoUrl,
     "id": id,
   };
 }

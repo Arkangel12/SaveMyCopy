@@ -1,6 +1,6 @@
-import 'package:savemycopy/src/models/facebookProfile.dart';
+import 'package:savemycopy/src/models/userProfile.dart';
 
-export 'package:savemycopy/src/models/facebookProfile.dart';
+export 'package:savemycopy/src/models/userProfile.dart';
 
 
 import 'package:savemycopy/src/api/firebaseCalls.dart';

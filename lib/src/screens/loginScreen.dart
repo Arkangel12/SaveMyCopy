@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:savemycopy/src/api/backend.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:savemycopy/src/widgets/clipboard.dart';
+import 'package:savemycopy/src/screens/clipboardScreen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -10,15 +10,16 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   var authenticated = false;
+  UserProfile userProfile;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: authenticated ? Clipboard() : _login(),
+      body: authenticated ? ClipboardScreen(userProfile: userProfile) : _login(),
     );
   }
 
-  Container _login(){
+  Container _login() {
     return Container(
       width: double.infinity,
       child: Column(
@@ -34,7 +35,14 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             backgroundColor: Colors.red,
             loginFrom: 'Gmail',
-            onTap: firebaseCalls.handleGoogleSignIn,
+            onTap: () async {
+              userProfile = await firebaseCalls.handleGoogleSignIn();
+              setState(() {
+                userProfile.id != null
+                    ? authenticated = true
+                    : authenticated = false;
+              });
+            },
           ),
           SizedBox(
             height: 20,
@@ -48,7 +56,14 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             backgroundColor: Colors.blueAccent,
             loginFrom: 'Facebook',
-            onTap: firebaseCalls.handleFacebookSignIn,
+            onTap: () async {
+              userProfile = await firebaseCalls.handleFacebookSignIn();
+              setState(() {
+                userProfile.id != null
+                    ? authenticated = true
+                    : authenticated = false;
+              });
+            },
           ),
         ],
       ),
@@ -74,12 +89,9 @@ class _LoginScreenState extends State<LoginScreen> {
         height: height,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            icon
-          ],
+          children: <Widget>[icon],
         ),
       ),
     );
   }
-
 }
