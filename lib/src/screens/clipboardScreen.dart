@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:savemycopy/src/api/backend.dart';
 import 'package:savemycopy/src/screens/webViewScreen.dart';
+import 'package:savemycopy/src/widgets/addClipboard.dart';
 
 class ClipboardScreen extends StatelessWidget {
   final UserProfile userProfile;
@@ -17,6 +18,7 @@ class ClipboardScreen extends StatelessWidget {
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  PersistentBottomSheetController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -90,36 +92,15 @@ class ClipboardScreen extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          _scaffoldKey.currentState
+          controller = _scaffoldKey.currentState
               .showBottomSheet<Null>((BuildContext context) {
-            return Container(
-              margin: EdgeInsets.symmetric(vertical: 30),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.orange)
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'Persistent header for bottom bar!',
-                      textAlign: TextAlign.left,
-                    ),
-                  ),
-                  Text(
-                    'Then here there will likely be some other content '
-                        'which will be displayed within the bottom bar',
-                    textAlign: TextAlign.left,
-                  ),
-                ],
-              ),
-            );
+            return AddClipboard(controller: controller);
           });
         },
         icon: Icon(Icons.bookmark),
-        label: Text('Add Bookmark'),
+        label: Text('Add Clipboard'),
       ),
     );
   }
 }
+
