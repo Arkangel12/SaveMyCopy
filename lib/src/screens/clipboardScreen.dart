@@ -55,7 +55,8 @@ class ClipboardScreen extends StatelessWidget {
                 ),
               ),
             ),
-            Text(userProfile.name,
+            Text(
+              '${userProfile.name}',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
