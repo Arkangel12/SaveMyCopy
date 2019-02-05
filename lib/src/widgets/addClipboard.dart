@@ -18,6 +18,7 @@ class _AddBookmarkState extends State<AddClipboard> {
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width - 30,
+      height: 150,
       margin: EdgeInsets.only(top: 20, bottom: 30, left: 15),
       child: Column(
         mainAxisSize: MainAxisSize.min,
