@@ -14,8 +14,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: authenticated ? ClipboardScreen(userProfile: userProfile) : _login(),
+    return Material(
+      child:
+          authenticated ? ClipboardScreen(userProfile: userProfile) : _login(),
     );
   }
 
