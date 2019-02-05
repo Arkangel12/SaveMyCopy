@@ -54,9 +54,26 @@ class _AddBookmarkState extends State<AddClipboard> {
                   width: 50,
                   height: 50,
                   alignment: Alignment.center,
-                  decoration:
-                  BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                  child: Icon(Icons.add, color: Colors.white),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.red,
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.red,
+                        offset: Offset(-1, -2),
+                        blurRadius: 3,
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.add,
+                    color: Colors.red,
+                    size: 30,
+                  ),
                 ),
               ),
             ],

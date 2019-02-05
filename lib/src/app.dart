@@ -9,6 +9,7 @@ class SaveMyCopy extends StatelessWidget {
       title: 'Save My Copy',
       theme: ThemeData(
         primarySwatch: Colors.red,
+        primaryColorBrightness: Brightness.light
       ),
       home: LoginScreen(),
     );

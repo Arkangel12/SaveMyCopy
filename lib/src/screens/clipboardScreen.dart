@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:savemycopy/src/api/backend.dart';
 import 'package:savemycopy/src/screens/webViewScreen.dart';
 import 'package:savemycopy/src/widgets/addClipboard.dart';
+import 'package:clipboard_plugin/clipboard_plugin.dart';
 
 class ClipboardScreen extends StatelessWidget {
   final UserProfile userProfile;
-
   ClipboardScreen({Key key, this.userProfile}) : super(key: key);
 
   static Route<dynamic> route(userProfile) {
@@ -25,7 +25,9 @@ class ClipboardScreen extends StatelessWidget {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(userProfile.name),
+        backgroundColor: Colors.white,
+        iconTheme: new IconThemeData(color: Colors.red),
+        title: Text('Your Saved Links', style: TextStyle(color: Colors.red)),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.exit_to_app),
@@ -74,14 +76,45 @@ class ClipboardScreen extends StatelessWidget {
               return ListView(
                 children: snapshot.data.documents.map(
                   (DocumentSnapshot document) {
-                    return ListTile(
+                    return InkWell(
                       onTap: () => Navigator.of(context).push(
                             WebViewScreen.route(
                               document['url'],
                             ),
                           ),
-                      title: Text(document['category']),
-                      subtitle: Text(document['url']),
+                      onLongPress: () {
+                        print('Casa en Long Press');
+                        ClipboardPlugin.copyToClipBoard(document['url'])
+                            .then((result) {
+                          final snackBar = SnackBar(
+                            content: Text('Copied to Clipboard'),
+                            duration: Duration(milliseconds: 1500),
+                            action: SnackBarAction(
+                              label: 'Undo',
+                              onPressed: () {
+                                ClipboardPlugin.copyToClipBoard('');
+                              },
+                            ),
+                          );
+                          Scaffold.of(context).showSnackBar(snackBar);
+                        });
+                      },
+                      child: Container(
+                        height: 50,
+                        margin: EdgeInsets.only(left: 20, top: 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              document['category'].toString().toUpperCase(),
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 5),
+                            Text(document['url'], overflow: TextOverflow.fade,),
+                          ],
+                        ),
+                      ),
                     );
                   },
                 ).toList(),
@@ -103,4 +136,3 @@ class ClipboardScreen extends StatelessWidget {
     );
   }
 }
-
