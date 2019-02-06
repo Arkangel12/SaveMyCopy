@@ -83,7 +83,6 @@ class ClipboardScreen extends StatelessWidget {
                             ),
                           ),
                       onLongPress: () {
-                        print('Casa en Long Press');
                         ClipboardPlugin.copyToClipBoard(document['url'])
                             .then((result) {
                           final snackBar = SnackBar(
