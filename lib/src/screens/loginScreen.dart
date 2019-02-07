@@ -27,45 +27,62 @@ class _LoginScreenState extends State<LoginScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
-          customLoginButton(
-            width: 80,
-            height: 50,
-            icon: Icon(
-              FontAwesomeIcons.google,
-              color: Colors.white,
+          Expanded(
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/smcLogo.png'),
+                ),
+              ),
             ),
-            backgroundColor: Colors.red,
-            loginFrom: 'Gmail',
-            onTap: () async {
-              userProfile = await firebaseCalls.handleGoogleSignIn();
-              setState(() {
-                userProfile.id != null
-                    ? authenticated = true
-                    : authenticated = false;
-              });
-            },
           ),
-          SizedBox(
-            height: 20,
-          ),
-          customLoginButton(
-            width: 80,
-            height: 50,
-            icon: Icon(
-              FontAwesomeIcons.facebookF,
-              color: Colors.white,
+          Expanded(
+            child: Column(
+              children: <Widget>[
+                customLoginButton(
+                  width: 80,
+                  height: 50,
+                  icon: Icon(
+                    FontAwesomeIcons.google,
+                    color: Colors.white,
+                  ),
+                  backgroundColor: Colors.red,
+                  loginFrom: 'Gmail',
+                  onTap: () async {
+                    userProfile = await firebaseCalls.handleGoogleSignIn();
+                    setState(() {
+                      userProfile.id != null
+                          ? authenticated = true
+                          : authenticated = false;
+                    });
+                  },
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                customLoginButton(
+                  width: 80,
+                  height: 50,
+                  icon: Icon(
+                    FontAwesomeIcons.facebookF,
+                    color: Colors.white,
+                  ),
+                  backgroundColor: Colors.blueAccent,
+                  loginFrom: 'Facebook',
+                  onTap: () async {
+                    userProfile = await firebaseCalls.handleFacebookSignIn();
+                    setState(() {
+                      userProfile.id != null
+                          ? authenticated = true
+                          : authenticated = false;
+                    });
+                  },
+                ),
+              ],
             ),
-            backgroundColor: Colors.blueAccent,
-            loginFrom: 'Facebook',
-            onTap: () async {
-              userProfile = await firebaseCalls.handleFacebookSignIn();
-              setState(() {
-                userProfile.id != null
-                    ? authenticated = true
-                    : authenticated = false;
-              });
-            },
-          ),
+          )
         ],
       ),
     );
@@ -85,6 +102,14 @@ class _LoginScreenState extends State<LoginScreen> {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(25),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              spreadRadius: 1,
+              blurRadius: 1,
+              offset: Offset(1, 2)
+            )
+          ]
         ),
         width: width,
         height: height,

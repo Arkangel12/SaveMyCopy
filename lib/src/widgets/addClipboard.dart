@@ -65,8 +65,6 @@ class _AddBookmarkState extends State<AddClipboard> {
               children: <Widget>[
                 InkWell(
                   onTap: () {
-                    print(_description);
-                    print(_url);
                     if (_description != null &&
                         _url != null &&
                         _description.toString().trim() != '' &&
@@ -80,7 +78,6 @@ class _AddBookmarkState extends State<AddClipboard> {
                         _opacity = 0;
                       });
                     } else {
-                      print('Campos vacios');
                       setState(() {
                         _opacity = 1;
                       });
