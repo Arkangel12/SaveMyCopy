@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:savemycopy/src/widgets/fadeRoute.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebViewScreen extends StatelessWidget {
@@ -9,8 +10,10 @@ class WebViewScreen extends StatelessWidget {
   WebViewScreen({Key key, this.url}) : super(key: key);
 
   static Route<dynamic> route(url) {
-    return MaterialPageRoute(
-      builder: (context) => WebViewScreen(url: url),
+    return FadeRoute(
+      widget: WebViewScreen(
+        url: url,
+      ),
     );
   }
 
@@ -58,5 +61,4 @@ class WebViewScreen extends StatelessWidget {
       },
     );
   }
-
 }
