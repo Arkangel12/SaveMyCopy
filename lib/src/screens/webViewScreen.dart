@@ -23,7 +23,9 @@ class WebViewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Your Pages'),
+        backgroundColor: Colors.white,
+        iconTheme: new IconThemeData(color: Colors.red),
+        title: Text('Link Viewer', style: TextStyle(color: Colors.red)),
       ),
       body: WebView(
         initialUrl: url,
@@ -32,7 +34,7 @@ class WebViewScreen extends StatelessWidget {
           _controller.complete(webViewController);
         },
       ),
-      floatingActionButton: favoriteButton(),
+//      floatingActionButton: favoriteButton(),
     );
   }
 
@@ -56,4 +58,5 @@ class WebViewScreen extends StatelessWidget {
       },
     );
   }
+
 }
