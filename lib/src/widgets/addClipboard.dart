@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:savemycopy/src/models/userProfile.dart';
+import 'package:savemycopy/src/api/backend.dart';
 
 class AddClipboard extends StatefulWidget {
   final PersistentBottomSheetController controller;
-  final UserProfile userProfile;
 
-  const AddClipboard({Key key, this.controller, this.userProfile})
-      : super(key: key);
+  const AddClipboard({Key key, this.controller}) : super(key: key);
 
   @override
   _AddBookmarkState createState() => _AddBookmarkState();
@@ -18,17 +15,12 @@ class _AddBookmarkState extends State<AddClipboard> {
   var _url;
   double _opacity = 0;
 
-  // TODO: debe pasarse a clipboardBloc
   void saveClipboard() {
     if (_description != null &&
         _url != null &&
         _description.toString().trim() != '' &&
         _url.toString().trim() != '') {
-      Firestore.instance.collection('clipboard').document().setData({
-        'category': _description,
-        'url': _url,
-        'uid': widget.userProfile.id
-      });
+      firebaseCalls.saveClipboard(description: _description, url: _url);
       widget.controller.close();
       setState(() {
         _opacity = 0;

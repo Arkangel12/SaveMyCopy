@@ -1,6 +1,7 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' show Client;
 import 'package:savemycopy/src/api/backend.dart';
 
@@ -8,6 +9,9 @@ class FirebaseCalls {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FacebookLogin _facebookLogin = FacebookLogin();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  // final Firestore _db = Firestore.instance;
+  final CollectionReference _clipboardRef =
+      Firestore.instance.collection('clipboard');
   UserProfile userProfile;
 
   var authenticated = false;
@@ -34,7 +38,7 @@ class FirebaseCalls {
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
 
-    var userString ='''{
+    var userString = '''{
       "name": "${user.displayName}",
       "first_name": "${user.displayName}",
       "last_name": "${user.displayName}",
@@ -70,7 +74,9 @@ class FirebaseCalls {
         break;
     }
 
-    _facebookLogin.currentAccessToken == null ? authenticated = false : authenticated = true;
+    _facebookLogin.currentAccessToken == null
+        ? authenticated = false
+        : authenticated = true;
     print(userProfile.name);
 
     return userProfile;
@@ -80,4 +86,22 @@ class FirebaseCalls {
       ? _googleSignIn.signOut
       : _facebookLogin.logOut;
 
+  Stream<QuerySnapshot> get getMyClipboards {
+    return _clipboardRef.where('uid', isEqualTo: userProfile.id).snapshots();
+  }
+
+  Stream<QuerySnapshot> get getAllClipboards {
+    return _clipboardRef.snapshots();
+  }
+
+  Future<bool> saveClipboard({String description, String url}) async {
+    Link link = Link(url: url, category: description, uid: userProfile.id);
+    try {
+      await _clipboardRef.document().setData(link.toJson());
+    } catch (e) {
+      return false;
+    }
+
+    return true;
+  }
 }
