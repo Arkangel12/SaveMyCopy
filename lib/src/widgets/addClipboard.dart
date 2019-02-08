@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:savemycopy/src/models/userProfile.dart';
 
 class AddClipboard extends StatefulWidget {
   final PersistentBottomSheetController controller;
+  final UserProfile userProfile;
 
-  const AddClipboard({Key key, this.controller}) : super(key: key);
+  const AddClipboard({Key key, this.controller, this.userProfile})
+      : super(key: key);
 
   @override
   _AddBookmarkState createState() => _AddBookmarkState();
@@ -14,6 +17,28 @@ class _AddBookmarkState extends State<AddClipboard> {
   var _description;
   var _url;
   double _opacity = 0;
+
+  // TODO: debe pasarse a clipboardBloc
+  void saveClipboard() {
+    if (_description != null &&
+        _url != null &&
+        _description.toString().trim() != '' &&
+        _url.toString().trim() != '') {
+      Firestore.instance.collection('clipboard').document().setData({
+        'category': _description,
+        'url': _url,
+        'uid': widget.userProfile.id
+      });
+      widget.controller.close();
+      setState(() {
+        _opacity = 0;
+      });
+    } else {
+      setState(() {
+        _opacity = 1;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +55,10 @@ class _AddBookmarkState extends State<AddClipboard> {
               children: <Widget>[
                 IconButton(
                   splashColor: Colors.redAccent,
-                  icon: Icon(Icons.close, color: Colors.blueGrey,),
+                  icon: Icon(
+                    Icons.close,
+                    color: Colors.blueGrey,
+                  ),
                   onPressed: () => widget.controller.close(),
                 )
               ],
@@ -64,25 +92,7 @@ class _AddBookmarkState extends State<AddClipboard> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 InkWell(
-                  onTap: () {
-                    if (_description != null &&
-                        _url != null &&
-                        _description.toString().trim() != '' &&
-                        _url.toString().trim() != '') {
-                      Firestore.instance
-                          .collection('clipboard')
-                          .document()
-                          .setData({'category': _description, 'url': _url});
-                      widget.controller.close();
-                      setState(() {
-                        _opacity = 0;
-                      });
-                    } else {
-                      setState(() {
-                        _opacity = 1;
-                      });
-                    }
-                  },
+                  onTap: saveClipboard,
                   child: Container(
                     width: 45,
                     height: 45,

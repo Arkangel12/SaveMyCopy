@@ -20,6 +20,19 @@ class ClipboardScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   PersistentBottomSheetController controller;
 
+  // TODO: debe pasarse a clipboardBloc
+  Stream<QuerySnapshot> get getMyClipboards {
+    return Firestore.instance
+        .collection('clipboard')
+        .where('uid', isEqualTo: userProfile.id)
+        .snapshots();
+  }
+
+  // TODO: debe pasarse a clipboardBloc
+  Stream<QuerySnapshot> get getAllClipboards {
+    return Firestore.instance.collection('clipboard').snapshots();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,7 +79,7 @@ class ClipboardScreen extends StatelessWidget {
         ),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: Firestore.instance.collection('clipboard').snapshots(),
+        stream: getMyClipboards,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
           switch (snapshot.connectionState) {
@@ -110,7 +123,10 @@ class ClipboardScreen extends StatelessWidget {
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: 5),
-                            Text(document['url'], overflow: TextOverflow.fade,),
+                            Text(
+                              document['url'],
+                              overflow: TextOverflow.fade,
+                            ),
                           ],
                         ),
                       ),
@@ -126,7 +142,10 @@ class ClipboardScreen extends StatelessWidget {
         onPressed: () {
           controller = _scaffoldKey.currentState
               .showBottomSheet<Null>((BuildContext context) {
-            return AddClipboard(controller: controller);
+            return AddClipboard(
+              controller: controller,
+              userProfile: userProfile,
+            );
           });
         },
         icon: Icon(Icons.bookmark),
