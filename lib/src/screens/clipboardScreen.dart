@@ -88,7 +88,7 @@ class ClipboardScreen extends StatelessWidget {
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: firebaseCalls.getMyClipboards,
+                stream: firebaseCalls.getMyClipboards(limit: 5),
                 builder: (BuildContext context,
                     AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.hasError)
@@ -106,8 +106,11 @@ class ClipboardScreen extends StatelessWidget {
                               Navigator.of(context).pop();
                               navigateTo(context, link.url);
                             },
-                            onLongPress: () => copyUrl(context, link.url),
-                            title: Text(link.category),
+                            onLongPress: () {
+                              Navigator.of(context).pop();
+                              copyUrl(context, link.url);
+                            },
+                            title: Text(link.category.toUpperCase()),
                             subtitle: Text(link.url),
                           );
                         }).toList(),
@@ -120,7 +123,7 @@ class ClipboardScreen extends StatelessWidget {
         ),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: firebaseCalls.getAllClipboards,
+        stream: firebaseCalls.getMyClipboards(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
           switch (snapshot.connectionState) {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
@@ -17,6 +19,27 @@ class FirebaseCalls {
   var authenticated = false;
 
   final Client client = Client();
+
+  Stream<UserProfile> get userProfileStream {
+    return _auth.onAuthStateChanged.map((FirebaseUser firebaseUser) {
+      if (firebaseUser != null) {
+        String userString = '''{
+          "name": "${firebaseUser.displayName}",
+          "first_name": "${firebaseUser.displayName}",
+          "last_name": "${firebaseUser.displayName}",
+          "email": "${firebaseUser.email}",
+          "photoUrl": "${firebaseUser.photoUrl}",
+          "id": "${firebaseUser.uid}"
+        }''';
+
+        userProfile = userProfileFromJson(userString);
+      } else {
+        userProfile = null;
+      }
+
+      return userProfile;
+    });
+  }
 
   Future<UserProfile> handleGoogleSignIn() async {
     final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
@@ -82,19 +105,22 @@ class FirebaseCalls {
     return userProfile;
   }
 
-  handleLogOut() => _googleSignIn.currentUser != null
-      ? _googleSignIn.signOut
-      : _facebookLogin.logOut;
+  handleLogOut() {
+    _googleSignIn.currentUser != null
+        ? _googleSignIn.signOut
+        : _facebookLogin.logOut;
+    _auth.signOut();
+  }
 
-  Stream<QuerySnapshot> get getMyClipboards {
+  Stream<QuerySnapshot> getMyClipboards({int limit}) {
     return _clipboardRef
         .where('uid', isEqualTo: userProfile.id)
-        .limit(5)
+        .limit(limit)
         .snapshots();
   }
 
-  Stream<QuerySnapshot> get getAllClipboards {
-    return _clipboardRef.snapshots();
+  Stream<QuerySnapshot> getAllClipboards({int limit}) {
+    return _clipboardRef.limit(limit).snapshots();
   }
 
   Future<bool> saveClipboard({String description, String url}) async {

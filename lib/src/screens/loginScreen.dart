@@ -9,15 +9,20 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  var authenticated = false;
   UserProfile userProfile;
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child:
-          authenticated ? ClipboardScreen(userProfile: userProfile) : _login(),
-    );
+    return StreamBuilder<UserProfile>(
+        stream: firebaseCalls.userProfileStream,
+        builder: (BuildContext context, AsyncSnapshot<UserProfile> snapshot) {
+          userProfile = snapshot.data;
+          return Material(
+            child: userProfile != null
+                ? ClipboardScreen(userProfile: userProfile)
+                : _login(),
+          );
+        });
   }
 
   Container _login() {
@@ -52,11 +57,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   loginFrom: 'Gmail',
                   onTap: () async {
                     userProfile = await firebaseCalls.handleGoogleSignIn();
-                    setState(() {
-                      userProfile.id != null
-                          ? authenticated = true
-                          : authenticated = false;
-                    });
                   },
                 ),
                 SizedBox(
@@ -73,11 +73,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   loginFrom: 'Facebook',
                   onTap: () async {
                     userProfile = await firebaseCalls.handleFacebookSignIn();
-                    setState(() {
-                      userProfile.id != null
-                          ? authenticated = true
-                          : authenticated = false;
-                    });
                   },
                 ),
               ],
@@ -100,17 +95,15 @@ class _LoginScreenState extends State<LoginScreen> {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(25),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              spreadRadius: 1,
-              blurRadius: 1,
-              offset: Offset(1, 2)
-            )
-          ]
-        ),
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black26,
+                  spreadRadius: 1,
+                  blurRadius: 1,
+                  offset: Offset(1, 2))
+            ]),
         width: width,
         height: height,
         child: Row(
