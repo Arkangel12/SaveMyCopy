@@ -20,6 +20,30 @@ class ClipboardScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   PersistentBottomSheetController controller;
 
+  navigateTo(BuildContext context, String url) {
+    return Navigator.of(context).push(
+      WebViewScreen.route(
+        url,
+      ),
+    );
+  }
+
+  copyUrl(BuildContext context, String url) {
+    ClipboardPlugin.copyToClipBoard(url).then((result) {
+      final snackBar = SnackBar(
+        content: Text('Copied to Clipboard'),
+        duration: Duration(milliseconds: 1500),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            ClipboardPlugin.copyToClipBoard('');
+          },
+        ),
+      );
+      Scaffold.of(context).showSnackBar(snackBar);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,11 +86,41 @@ class ClipboardScreen extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: firebaseCalls.getMyClipboards,
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.hasError)
+                    return new Text('Error: ${snapshot.error}');
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.waiting:
+                      return Text('Loading...');
+                    default:
+                      return ListView(
+                        children: snapshot.data.documents
+                            .map((DocumentSnapshot document) {
+                          Link link = Link.fromJson(document.data);
+                          return ListTile(
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              navigateTo(context, link.url);
+                            },
+                            onLongPress: () => copyUrl(context, link.url),
+                            title: Text(link.category),
+                            subtitle: Text(link.url),
+                          );
+                        }).toList(),
+                      );
+                  }
+                },
+              ),
+            ),
           ],
         ),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: firebaseCalls.getMyClipboards,
+        stream: firebaseCalls.getAllClipboards,
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
           switch (snapshot.connectionState) {
@@ -76,28 +130,10 @@ class ClipboardScreen extends StatelessWidget {
               return ListView(
                 children: snapshot.data.documents.map(
                   (DocumentSnapshot document) {
+                    Link link = Link.fromJson(document.data);
                     return InkWell(
-                      onTap: () => Navigator.of(context).push(
-                            WebViewScreen.route(
-                              document['url'],
-                            ),
-                          ),
-                      onLongPress: () {
-                        ClipboardPlugin.copyToClipBoard(document['url'])
-                            .then((result) {
-                          final snackBar = SnackBar(
-                            content: Text('Copied to Clipboard'),
-                            duration: Duration(milliseconds: 1500),
-                            action: SnackBarAction(
-                              label: 'Undo',
-                              onPressed: () {
-                                ClipboardPlugin.copyToClipBoard('');
-                              },
-                            ),
-                          );
-                          Scaffold.of(context).showSnackBar(snackBar);
-                        });
-                      },
+                      onTap: () => navigateTo(context, link.url),
+                      onLongPress: () => copyUrl(context, link.url),
                       child: Container(
                         height: 50,
                         margin: EdgeInsets.only(left: 20, top: 10),
@@ -106,12 +142,12 @@ class ClipboardScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              document['category'].toString().toUpperCase(),
+                              link.category.toUpperCase(),
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: 5),
                             Text(
-                              document['url'],
+                              link.url,
                               overflow: TextOverflow.fade,
                             ),
                           ],

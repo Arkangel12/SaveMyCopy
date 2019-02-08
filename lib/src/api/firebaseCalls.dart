@@ -87,7 +87,10 @@ class FirebaseCalls {
       : _facebookLogin.logOut;
 
   Stream<QuerySnapshot> get getMyClipboards {
-    return _clipboardRef.where('uid', isEqualTo: userProfile.id).snapshots();
+    return _clipboardRef
+        .where('uid', isEqualTo: userProfile.id)
+        .limit(5)
+        .snapshots();
   }
 
   Stream<QuerySnapshot> get getAllClipboards {
