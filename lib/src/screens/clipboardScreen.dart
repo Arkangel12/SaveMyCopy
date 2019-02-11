@@ -134,26 +134,57 @@ class ClipboardScreen extends StatelessWidget {
                 children: snapshot.data.documents.map(
                   (DocumentSnapshot document) {
                     Link link = Link.fromJson(document.data);
-                    return InkWell(
-                      onTap: () => navigateTo(context, link.url),
-                      onLongPress: () => copyUrl(context, link.url),
-                      child: Container(
-                        height: 50,
-                        margin: EdgeInsets.only(left: 20, top: 10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              link.category.toUpperCase(),
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                    return Dismissible(
+                      key: Key(document.documentID),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        color: Colors.red,
+                        padding: EdgeInsets.only(right: 20),
+                        child: Icon(
+                          Icons.delete_forever,
+                          color: Colors.white,
+                        ),
+                        alignment: Alignment.centerRight,
+                      ),
+                      onDismissed: (direction) async {
+                        bool removed = await firebaseCalls.deleteClipboard(
+                            id: document.documentID);
+                        if (removed) {
+                          final snackBar = SnackBar(
+                            content: Text('${link.category} removed'),
+                            duration: Duration(milliseconds: 1500),
+                            action: SnackBarAction(
+                              label: 'Undo',
+                              onPressed: () {
+                                firebaseCalls.saveClipboard(
+                                    description: link.category, url: link.url);
+                              },
                             ),
-                            SizedBox(height: 5),
-                            Text(
-                              link.url,
-                              overflow: TextOverflow.fade,
-                            ),
-                          ],
+                          );
+                          Scaffold.of(context).showSnackBar(snackBar);
+                        }
+                      },
+                      child: InkWell(
+                        onTap: () => navigateTo(context, link.url),
+                        onLongPress: () => copyUrl(context, link.url),
+                        child: Container(
+                          height: 50,
+                          margin: EdgeInsets.only(left: 20, top: 10),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                link.category.toUpperCase(),
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                link.url,
+                                overflow: TextOverflow.fade,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );

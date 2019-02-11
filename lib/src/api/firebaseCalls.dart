@@ -133,4 +133,13 @@ class FirebaseCalls {
 
     return true;
   }
+
+  Future<bool> deleteClipboard({String id}) async {
+    try {
+      await _clipboardRef.document(id).delete();
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
 }
