@@ -11,6 +11,7 @@ class FirebaseCalls {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FacebookLogin _facebookLogin = FacebookLogin();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
   // final Firestore _db = Firestore.instance;
   final CollectionReference _clipboardRef =
       Firestore.instance.collection('clipboard');
@@ -113,14 +114,22 @@ class FirebaseCalls {
   }
 
   Stream<QuerySnapshot> getMyClipboards({int limit}) {
-    return _clipboardRef
-        .where('uid', isEqualTo: userProfile.id)
-        .limit(limit)
-        .snapshots();
+    if (limit != null) {
+      return _clipboardRef
+          .where('uid', isEqualTo: userProfile.id)
+          .limit(limit)
+          .snapshots();
+    } else {
+      return _clipboardRef.where('uid', isEqualTo: userProfile.id).snapshots();
+    }
   }
 
   Stream<QuerySnapshot> getAllClipboards({int limit}) {
-    return _clipboardRef.limit(limit).snapshots();
+    if (limit != null) {
+      return _clipboardRef.limit(limit).snapshots();
+    } else {
+      return _clipboardRef.snapshots();
+    }
   }
 
   Future<bool> saveClipboard({String description, String url}) async {
