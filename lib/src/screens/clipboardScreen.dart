@@ -92,10 +92,7 @@ class ClipboardScreen extends StatelessWidget {
               width: double.infinity,
               child: Text(
                 'Recently saved',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.red
-                ),
+                style: TextStyle(fontSize: 18, color: Colors.red),
               ),
             ),
             Expanded(
@@ -137,7 +134,9 @@ class ClipboardScreen extends StatelessWidget {
           if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
-              return Center(child: CircularProgressIndicator(),);
+              return Center(
+                child: CircularProgressIndicator(),
+              );
             default:
               return ListView(
                 children: snapshot.data.documents.map(
@@ -178,6 +177,9 @@ class ClipboardScreen extends StatelessWidget {
                         onLongPress: () => copyUrl(context, link.url),
                         child: Container(
                           height: 50,
+                          width: MediaQuery.of(context)
+                              .size
+                              .width, // Necesario al agregar el widget Dismissible
                           margin: EdgeInsets.only(left: 20, top: 10),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
