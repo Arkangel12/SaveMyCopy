@@ -86,6 +86,18 @@ class ClipboardScreen extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
+            Container(
+              padding: EdgeInsets.only(top: 40, left: 15),
+              alignment: Alignment.centerLeft,
+              width: double.infinity,
+              child: Text(
+                'Recently saved',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.red
+                ),
+              ),
+            ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: firebaseCalls.getMyClipboards(limit: 5),
@@ -95,9 +107,10 @@ class ClipboardScreen extends StatelessWidget {
                     return new Text('Error: ${snapshot.error}');
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting:
-                      return Text('Loading...');
+                      return Center(child: CircularProgressIndicator());
                     default:
                       return ListView(
+                        padding: EdgeInsets.symmetric(vertical: 10),
                         children: snapshot.data.documents
                             .map((DocumentSnapshot document) {
                           Link link = Link.fromJson(document.data);
@@ -105,10 +118,6 @@ class ClipboardScreen extends StatelessWidget {
                             onTap: () {
                               Navigator.of(context).pop();
                               navigateTo(context, link.url);
-                            },
-                            onLongPress: () {
-                              Navigator.of(context).pop();
-                              copyUrl(context, link.url);
                             },
                             title: Text(link.category.toUpperCase()),
                             subtitle: Text(link.url),
@@ -128,7 +137,7 @@ class ClipboardScreen extends StatelessWidget {
           if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
-              return Text('Loading...');
+              return Center(child: CircularProgressIndicator(),);
             default:
               return ListView(
                 children: snapshot.data.documents.map(
