@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:savemycopy/src/widgets/fadeRoute.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class WebViewScreen extends StatelessWidget {
+class WebViewScreen extends StatefulWidget {
   final url;
-
   WebViewScreen({Key key, this.url}) : super(key: key);
 
   static Route<dynamic> route(url) {
@@ -17,10 +16,17 @@ class WebViewScreen extends StatelessWidget {
     );
   }
 
+  @override
+  WebViewScreenState createState() {
+    return new WebViewScreenState();
+  }
+}
+
+class WebViewScreenState extends State<WebViewScreen> {
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
 
-  String urlName;
+  String urlName = "";
 
   @override
   Widget build(BuildContext context) {
@@ -31,34 +37,13 @@ class WebViewScreen extends StatelessWidget {
         title: Text('Link Viewer', style: TextStyle(color: Colors.red)),
       ),
       body: WebView(
-        initialUrl: url,
+        initialUrl: widget.url,
         javascriptMode: JavascriptMode.unrestricted,
         onWebViewCreated: (WebViewController webViewController) {
           _controller.complete(webViewController);
         },
       ),
 //      floatingActionButton: favoriteButton(),
-    );
-  }
-
-  Widget favoriteButton() {
-    return FutureBuilder<WebViewController>(
-      future: _controller.future,
-      builder:
-          (BuildContext context, AsyncSnapshot<WebViewController> controller) {
-        if (controller.hasData) {
-          return FloatingActionButton(
-            onPressed: () async {
-              urlName = await controller.data.currentUrl();
-              Scaffold.of(context).showSnackBar(
-                SnackBar(content: Text("Favorited $urlName")),
-              );
-            },
-            child: const Icon(Icons.favorite),
-          );
-        }
-        return Container();
-      },
     );
   }
 }

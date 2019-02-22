@@ -5,7 +5,7 @@ import 'package:savemycopy/src/screens/webViewScreen.dart';
 import 'package:savemycopy/src/widgets/addClipboard.dart';
 import 'package:clipboard_plugin/clipboard_plugin.dart';
 
-class ClipboardScreen extends StatelessWidget {
+class ClipboardScreen extends StatefulWidget {
   final UserProfile userProfile;
 
   ClipboardScreen({Key key, this.userProfile}) : super(key: key);
@@ -18,6 +18,13 @@ class ClipboardScreen extends StatelessWidget {
     );
   }
 
+  @override
+  ClipboardScreenState createState() {
+    return new ClipboardScreenState();
+  }
+}
+
+class ClipboardScreenState extends State<ClipboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   PersistentBottomSheetController controller;
@@ -182,15 +189,15 @@ class ClipboardScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 image: DecorationImage(
                   fit: BoxFit.cover,
-                  image: userProfile.photoUrl == null
+                  image: widget.userProfile.photoUrl == null
                       ? NetworkImage(
-                          'https://graph.facebook.com/${userProfile.id}/picture?type=normal')
-                      : NetworkImage(userProfile.photoUrl),
+                          'https://graph.facebook.com/${widget.userProfile.id}/picture?type=normal')
+                      : NetworkImage(widget.userProfile.photoUrl),
                 ),
               ),
             ),
             Text(
-              '${userProfile.name}',
+              '${widget.userProfile.name}',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,

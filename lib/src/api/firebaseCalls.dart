@@ -81,12 +81,10 @@ class FirebaseCalls {
 
     switch (result.status) {
       case FacebookLoginStatus.loggedIn:
-        print(result.accessToken.token);
         final token = result.accessToken.token;
         final graphResponse = await client.get(
             'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email&access_token=$token');
         userProfile = userProfileFromJson(graphResponse.body);
-        print(graphResponse.body);
         authenticated = true;
         break;
       case FacebookLoginStatus.cancelledByUser:
@@ -100,17 +98,11 @@ class FirebaseCalls {
     _facebookLogin.currentAccessToken == null
         ? authenticated = false
         : authenticated = true;
-    print(userProfile.name);
 
     return userProfile;
   }
 
-  handleLogOut() {
-    _googleSignIn.currentUser != null
-        ? _googleSignIn.signOut
-        : _facebookLogin.logOut;
-    _auth.signOut();
-  }
+  handleLogOut() => _auth.signOut();
 
   Stream<QuerySnapshot> getMyClipboards({int limit}) {
     if (limit != null) {
