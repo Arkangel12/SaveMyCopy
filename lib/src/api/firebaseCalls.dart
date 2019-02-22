@@ -12,7 +12,6 @@ class FirebaseCalls {
   final FacebookLogin _facebookLogin = FacebookLogin();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // final Firestore _db = Firestore.instance;
   final CollectionReference _clipboardRef =
       Firestore.instance.collection('clipboard');
   UserProfile userProfile;

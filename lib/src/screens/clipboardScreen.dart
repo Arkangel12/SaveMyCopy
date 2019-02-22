@@ -7,6 +7,7 @@ import 'package:clipboard_plugin/clipboard_plugin.dart';
 
 class ClipboardScreen extends StatelessWidget {
   final UserProfile userProfile;
+
   ClipboardScreen({Key key, this.userProfile}) : super(key: key);
 
   static Route<dynamic> route(userProfile) {
@@ -18,6 +19,7 @@ class ClipboardScreen extends StatelessWidget {
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   PersistentBottomSheetController controller;
 
   navigateTo(BuildContext context, String url) {
@@ -46,6 +48,8 @@ class ClipboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -60,7 +64,113 @@ class ClipboardScreen extends StatelessWidget {
         ],
       ),
       drawer: Drawer(
-        child: Column(
+        child: buildDrawer(height, width),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: firebaseCalls.getMyClipboards(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            default:
+              return Stack(
+                children: <Widget>[
+                  buildBackGround(height, width),
+                  ListView(
+                    children: snapshot.data.documents.map(
+                      (DocumentSnapshot document) {
+                        Link link = Link.fromJson(document.data);
+                        return Dismissible(
+                          key: Key(document.documentID),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
+                            color: Colors.red,
+                            padding: EdgeInsets.only(right: 20),
+                            child: Icon(
+                              Icons.delete_forever,
+                              color: Colors.white,
+                            ),
+                            alignment: Alignment.centerRight,
+                          ),
+                          onDismissed: (direction) async {
+                            bool removed = await firebaseCalls.deleteClipboard(
+                                id: document.documentID);
+                            if (removed) {
+                              final snackBar = SnackBar(
+                                content: Text('${link.category} removed'),
+                                duration: Duration(milliseconds: 1500),
+                                action: SnackBarAction(
+                                  label: 'Undo',
+                                  onPressed: () {
+                                    firebaseCalls.saveClipboard(
+                                        description: link.category,
+                                        url: link.url);
+                                  },
+                                ),
+                              );
+                              Scaffold.of(context).showSnackBar(snackBar);
+                            }
+                          },
+                          child: InkWell(
+                            onTap: () => navigateTo(context, link.url),
+                            onLongPress: () => copyUrl(context, link.url),
+                            child: Container(
+                              height: 50,
+                              width: MediaQuery.of(context)
+                                  .size
+                                  .width, // Needed to ass Dismissible
+                              margin: EdgeInsets.only(left: 20, top: 10),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    link.category.toUpperCase(),
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Text(
+                                    link.url,
+                                    overflow: TextOverflow.fade,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ).toList(),
+                  ),
+                ],
+              );
+          }
+        },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          controller = _scaffoldKey.currentState
+              .showBottomSheet<Null>((BuildContext context) {
+            return AddClipboard(
+              controller: controller,
+            );
+          });
+        },
+        icon: Icon(Icons.bookmark),
+        label: Text('Add Clipboard'),
+      ),
+    );
+  }
+
+  Widget buildDrawer(double height, double width) {
+    return Stack(
+      children: <Widget>[
+        buildBackGround(height, width),
+        Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
@@ -126,98 +236,96 @@ class ClipboardScreen extends StatelessWidget {
               ),
             ),
           ],
+        )
+      ],
+    );
+  }
+
+  Positioned buildCircle({double top, double left, double diameter, MaterialColor color}) {
+    return Positioned(
+      top: top,
+      left: left,
+      child: Container(
+        width: diameter,
+        height: diameter,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: color[100],
         ),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: firebaseCalls.getMyClipboards(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasError) return new Text('Error: ${snapshot.error}');
-          switch (snapshot.connectionState) {
-            case ConnectionState.waiting:
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            default:
-              return ListView(
-                children: snapshot.data.documents.map(
-                  (DocumentSnapshot document) {
-                    Link link = Link.fromJson(document.data);
-                    return Dismissible(
-                      key: Key(document.documentID),
-                      direction: DismissDirection.endToStart,
-                      background: Container(
-                        color: Colors.red,
-                        padding: EdgeInsets.only(right: 20),
-                        child: Icon(
-                          Icons.delete_forever,
-                          color: Colors.white,
-                        ),
-                        alignment: Alignment.centerRight,
-                      ),
-                      onDismissed: (direction) async {
-                        bool removed = await firebaseCalls.deleteClipboard(
-                            id: document.documentID);
-                        if (removed) {
-                          final snackBar = SnackBar(
-                            content: Text('${link.category} removed'),
-                            duration: Duration(milliseconds: 1500),
-                            action: SnackBarAction(
-                              label: 'Undo',
-                              onPressed: () {
-                                firebaseCalls.saveClipboard(
-                                    description: link.category, url: link.url);
-                              },
-                            ),
-                          );
-                          Scaffold.of(context).showSnackBar(snackBar);
-                        }
-                      },
-                      child: InkWell(
-                        onTap: () => navigateTo(context, link.url),
-                        onLongPress: () => copyUrl(context, link.url),
-                        child: Container(
-                          height: 50,
-                          width: MediaQuery.of(context)
-                              .size
-                              .width, // Necesario al agregar el widget Dismissible
-                          margin: EdgeInsets.only(left: 20, top: 10),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                link.category.toUpperCase(),
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(height: 5),
-                              Text(
-                                link.url,
-                                overflow: TextOverflow.fade,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ).toList(),
-              );
-          }
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          controller = _scaffoldKey.currentState
-              .showBottomSheet<Null>((BuildContext context) {
-            return AddClipboard(
-              controller: controller,
-            );
-          });
-        },
-        icon: Icon(Icons.bookmark),
-        label: Text('Add Clipboard'),
-      ),
+    );
+  }
+
+  Widget buildBackGround(double height, double width) {
+    return Stack(
+      fit: StackFit.expand,
+      children: <Widget>[
+        buildCircle(
+            top: height * .05,
+            left: width * .1,
+            diameter: 20,
+            color: Colors.green),
+        buildCircle(
+            top: height * .1,
+            left: width * .97,
+            diameter: 20,
+            color: Colors.blue),
+        buildCircle(
+            top: height * .05,
+            left: width * .4,
+            diameter: 60,
+            color: Colors.yellow),
+        buildCircle(
+            top: height * .5,
+            left: width * .25,
+            diameter: 70,
+            color: Colors.red),
+        buildCircle(
+            top: height * .2,
+            left: width * .1,
+            diameter: 60,
+            color: Colors.blue),
+        buildCircle(
+            top: height * .7,
+            left: width * .3,
+            diameter: 70,
+            color: Colors.green),
+        buildCircle(
+            top: height * .15,
+            left: width * .7,
+            diameter: 70,
+            color: Colors.red),
+        buildCircle(
+            top: height * .35,
+            left: width * .5,
+            diameter: 50,
+            color: Colors.green),
+        buildCircle(
+            top: height * .8,
+            left: width * .9,
+            diameter: 50,
+            color: Colors.blue),
+        buildCircle(
+            top: height * .5,
+            left: width * .65,
+            diameter: 60,
+            color: Colors.yellow),
+        buildCircle(
+            top: height * .8,
+            left: width * .6,
+            diameter: 20,
+            color: Colors.red),
+        buildCircle(
+            top: height * .8,
+            left: width * .1,
+            diameter: 40,
+            color: Colors.yellow),
+        buildCircle(
+            top: height * .4,
+            left: width * .1,
+            diameter: 30,
+            color: Colors.yellow),
+      ],
     );
   }
 }
