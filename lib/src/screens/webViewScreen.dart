@@ -43,7 +43,6 @@ class WebViewScreenState extends State<WebViewScreen> {
           _controller.complete(webViewController);
         },
       ),
-//      floatingActionButton: favoriteButton(),
     );
   }
 }
