@@ -1,5 +1,5 @@
 name: savemycopy
-description: A new Flutter project.
+description: Save my copy.
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -23,7 +23,7 @@ dependencies:
   cloud_firestore: ^0.9.0
   google_sign_in: ^4.0.0
   firebase_auth: ^0.8.0+1
-  flutter_facebook_login: ^1.2.0
+  flutter_facebook_login: ^2.0.0
   font_awesome_flutter: any
   rxdart: ^0.20.0
   webview_flutter: ^0.3.0
@@ -32,14 +32,18 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.7.0
 
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/smcLogo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
 
 # The following section is specific to Flutter.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -47,15 +51,12 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-   - assets/smcLogo.png
+    - assets/smcLogo.png
   #  - images/a_dot_ham.jpeg
-
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.
-
   # For details regarding adding assets from package dependencies, see
   # https://flutter.io/assets-and-images/#from-packages
-
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a
